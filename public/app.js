@@ -48,6 +48,40 @@ $("libraryResults").addEventListener("click",e=>{
   save();cards();list();toast("已加入卡组："+card.name);
 });
 loadCardCatalog();
+const zexalRecipe={
+  main:[
+    ["ZS - Armed Sage",3],["ZW - Pegasus Twin Saber",2],["ZW - Lightning Blade",2],
+    ["ZW - Tornado Bringer",1],["ZW - Eagle Claw",1],["ZS - Ascended Sage",3],
+    ["Astral Kuriboh",1],["Zubababancho Gagagacoat",3],["Dodododwarf Gogogoglove",3],
+    ["Utopic Onomatopoeia",3],["Ash Blossom & Joyous Spring",1],["Xyz Agent",2],
+    ["Onomatopaira",2],["Rank-Up-Magic Zexal Force",3],["Xyz Change Tactics",1],
+    ["Zexal Construction",3],["Lightning Storm",3],["Zexal Entrust",1],
+    ["Halfway to Forever",1],["Mirror Force",1]
+  ],
+  extra:[
+    ["Number 39: Utopia",3],["Ultimate Leo Utopia Ray",1],["Number 39: Utopia Beyond",1],
+    ["Number F0: Utopic Future",2],["Number F0: Utopic Draco Future",1],
+    ["Gagagaga Magician",2],["Gagaga Samurai",1],["Gagaga Cowboy",1],
+    ["Dark Rebellion Xyz Dragon",1],["Number S39: Utopia the Lightning",1],
+    ["Number S39: Utopia Prime",1]
+  ]
+};
+$("importZexalDeck").onclick=()=>{
+ if(!cardCatalog.length)return toast("卡牌资料库尚未载入，请稍后再试");
+ const make=(rows,zone)=>rows.flatMap(([name,n])=>{
+   const c=cardCatalog.find(x=>(x.name||"").toLocaleLowerCase()===name.toLocaleLowerCase());
+   return c?Array.from({length:n},()=>({id:c.id,name:c.name,zone,source:"Konami Neuron public deck recipe"})):[];
+ });
+ const main=make(zexalRecipe.main,"main"),extra=make(zexalRecipe.extra,"extra");
+ const expectedMain=zexalRecipe.main.reduce((n,x)=>n+x[1],0),expectedExtra=zexalRecipe.extra.reduce((n,x)=>n+x[1],0);
+ if(main.length!==expectedMain||extra.length!==expectedExtra){
+   const missing=[...zexalRecipe.main,...zexalRecipe.extra].filter(([name])=>!cardCatalog.some(c=>(c.name||"").toLocaleLowerCase()===name.toLocaleLowerCase())).map(x=>x[0]);
+   return toast("数据库缺少 "+missing.length+" 种卡牌，未创建不完整卡组："+missing.slice(0,3).join("、"));
+ }
+ const d={id:crypto.randomUUID(),name:"异热同心 ZEXAL 参考构筑",cards:[...main,...extra]};
+ decks.push(d);save();select(d.id);toast("已导入：主卡组 40 张 + 额外卡组 15 张");
+};
+
 
 
 let duelState=null;
