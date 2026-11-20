@@ -2,7 +2,7 @@ import unittest
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from card_translation import map_translation
+from card_translation import map_translation, index_records_by_password
 
 class TranslationMappingTests(unittest.TestCase):
     def test_official_simplified_chinese_fields(self):
@@ -25,6 +25,16 @@ class TranslationMappingTests(unittest.TestCase):
         self.assertIsNone(name)
         self.assertIsNone(desc)
         self.assertEqual(fallback, "通用译名")
+
+
+    def test_index_joins_by_card_password_not_cid(self):
+        records = {
+            "4007": {"cid": 4007, "id": 89631139, "text": {"sc_name": "青眼白龙"}},
+            "4008": {"cid": 4008, "id": 23995346, "text": {"sc_name": "黑魔术师"}}
+        }
+        index = index_records_by_password(records)
+        self.assertEqual(index["89631139"]["text"]["sc_name"], "青眼白龙")
+        self.assertNotIn("4007", index)
 
     def test_missing_record_is_safe(self):
         self.assertEqual(map_translation(None), (None, None, None))
