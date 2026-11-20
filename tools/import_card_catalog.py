@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Build a browser-searchable catalog from the upstream Project Ignis official CDB."""
-import json, sqlite3, urllib.request
+"""Build a browser-searchable catalog from the upstream Project Ignis CDB."""
+import json, re, sqlite3, urllib.request
 from pathlib import Path
 
 URL = "https://raw.githubusercontent.com/ProjectIgnis/BabelCDB/master/cards.cdb"
@@ -19,6 +19,16 @@ try:
     """).fetchall()
 finally:
     conn.close()
+
+def archetypes(name, desc):
+    text = (name or "") + " " + (desc or "")
+    tags = []
+    # ZEXAL is the shared archseries covering ZW/ZS and Utopia/Utopic cards.
+    if (re.search(r"\b(?:ZW|ZS|DZW|SZW)\s*-", text, re.I)
+        or re.search(r"\bZexal\b|\bUtopia\b|\bUtopic\b", text, re.I)):
+        tags.append("ZEXAL")
+    return tags
+
 cards = []
 for r in rows:
     cid,ot,typ,atk,df,level,race,attribute,category,name,desc = r
@@ -28,11 +38,12 @@ for r in rows:
       "id":cid,"ot":ot,"type":typ,"atk":atk,"def":df,"level":level,
       "race":race,"attribute":attribute,"category":category,
       "name":name,"source_name":name,"desc":desc or "","source_desc":desc or "",
-      "name_zh":None,"desc_zh":None,
+      "name_zh":None,"desc_zh":None,"archetypes":archetypes(name, desc),
       "data_status":"upstream_cdb_imported","script_status":"not_verified",
       "rule_status":"not_verified","image_status":"not_imported"
     })
 OUT.write_text(json.dumps({"source":"ProjectIgnis/BabelCDB/cards.cdb","source_url":URL,
  "language_policy":"upstream CDB text retained as-is; language is not asserted; verified zh-CN and Japanese sources are pending",
+ "archetype_tag_policy":"ZEXAL tag is a name/text keyword grouping for discovery, not an official exhaustive archetype ruling",
  "count":len(cards),"cards":cards},ensure_ascii=False,separators=(",",":")),encoding="utf-8")
 print("Imported",len(cards),"card records into",OUT)
