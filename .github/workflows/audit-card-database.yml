@@ -2,6 +2,11 @@ name: Audit upstream card databases
 
 on:
   workflow_dispatch:
+  push:
+    branches: [singleplayer-v0.2]
+    paths:
+      - 'tools/audit_babelcdb.py'
+      - '.github/workflows/audit-card-database.yml'
   schedule:
     - cron: '23 3 * * 1'
 
