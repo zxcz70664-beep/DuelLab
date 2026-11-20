@@ -43,8 +43,11 @@ $("libraryResults").addEventListener("click",e=>{
   const deck=decks.find(d=>d.id===current);
   if(!card)return;
   if(!deck){toast("请先创建并选择一个卡组");page("decks");return}
-  if(deck.cards.some(c=>c.id===card.id)){toast("这张卡已在当前卡组中");return}
-  deck.cards.push({id:card.id,name:card.name,zone:"main",source:"BabelCDB"});
+  const copies=deck.cards.filter(c=>String(c.id)===String(card.id)).length;
+  if(copies>=3){toast("同名卡最多添加 3 张");return}
+  const zone=(Number(card.type)&0x800000)?"extra":"main";
+  if(zone==="extra"&&deck.cards.filter(c=>c.zone==="extra").length>=15){toast("额外卡组最多 15 张");return}
+  deck.cards.push({id:card.id,name:card.name,zone,source:"BabelCDB"});
   save();cards();list();toast("已加入卡组："+card.name);
 });
 loadCardCatalog();
@@ -108,6 +111,25 @@ function renderDuel(){
  $("duelBoard").innerHTML='<div class="duel-statusbar"><b>'+(s.over?"决斗结束":(s.phase==="player"?"你的回合":"AI 回合"))+' · 第 '+s.turn+' 回合</b><span>双方 LP 变化会实时显示</span></div>'+side(s.ai,"AI")+'<div class="duel-mid">VS</div>'+side(s.player,"你")+'<div class="duel-hand"><b>你的手牌（选择一张）</b><div>'+s.player.hand.map((c,i)=>'<button data-hand="'+i+'" class="'+(s.selected===i?"selected":"")+'">'+esc(c.name)+'<small>ATK '+c.atk+'</small></button>').join("")+'</div></div><div class="duel-log">'+s.log.slice(-5).map(x=>'<p>'+esc(x)+'</p>').join("")+'</div>';
  $("handSelect").innerHTML=s.player.hand.map((c,i)=>'<option value="'+i+'">'+esc(c.name)+'</option>').join("");
 }
+function playerXyzSummon(){
+ const s=duelState,p=s?.player;if(!p||s.over||s.phase!=="player")return;
+ const candidates=p.field.map((c,i)=>({c,i})).filter(x=>Number(x.c.level)>0);
+ if(candidates.length<2)return toast("场上至少需要 2 只等级相同的怪兽");
+ let pair=null;
+ for(let i=0;i<candidates.length;i++)for(let j=i+1;j<candidates.length;j++)
+  if(Number(candidates[i].c.level)===Number(candidates[j].c.level)){pair=[candidates[i],candidates[j]];break}
+ if(!pair)return toast("当前没有等级相同的怪兽可作为超量素材");
+ const rank=Number(pair[0].c.level);
+ const deck=decks.find(d=>d.id===$("duelDeck").value);
+ const extras=(deck?.cards||[]).filter(c=>c.zone==="extra");
+ const xyz=extras.map(x=>cardCatalog.find(c=>String(c.id)===String(x.id))).find(c=>c&&(Number(c.type)&0x800000)&&Number(c.level)===rank);
+ if(!xyz)return toast("额外卡组中没有阶级 "+rank+" 的超量怪兽");
+ const materials=pair.map(x=>p.field[x.i]);
+ pair.map(x=>x.i).sort((a,b)=>b-a).forEach(i=>p.field.splice(i,1));
+ p.field.push({...xyz,materials});
+ s.log.push("你超量召唤了「"+xyz.name+"」，素材："+materials.map(x=>x.name).join("、")+"。");
+ renderDuel();
+}
 function playerDraw(){
  const p=duelState?.player;if(!p||duelState.over||duelState.phase!=="player"||p.drawn)return;
  if(!p.deck.length){finishDuel("你因卡组耗尽而输掉决斗");return}
@@ -153,6 +175,7 @@ function endPlayerTurn(){
 $("startDuel").onclick=startDuel;
 $("drawCard").onclick=playerDraw;
 $("summonCard").onclick=playerSummon;
+$("xyzSummon").onclick=playerXyzSummon;
 $("attackCard").onclick=playerAttack;
 $("endTurn").onclick=endPlayerTurn;
 $("duelBoard").addEventListener("click",e=>{
