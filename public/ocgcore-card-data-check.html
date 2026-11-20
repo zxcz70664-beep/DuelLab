@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>DuelLab · OCGCore 卡片数据验证</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,"Microsoft YaHei",sans-serif;background:#0b1220;color:#e8eef8}
+body{max-width:900px;margin:0 auto;padding:28px 18px}
+h1{font-size:26px}.muted{color:#9baac0;line-height:1.7}
+.panel{background:#141f30;border:1px solid #29384e;border-radius:14px;padding:18px;margin:16px 0}
+.status{padding:10px 0;border-bottom:1px solid #29384e}.ok{color:#35c78a}.fail{color:#f87171}
+button{background:#6ea8fe;color:#071426;border:0;border-radius:9px;padding:11px 18px;font-weight:700;cursor:pointer}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#080e18;padding:14px;border-radius:9px;min-height:80px}
+</style>
+</head>
+<body>
+<small>DUELLAB / ENGINE SPIKE / 0.2</small>
+<h1>OCGCore 卡片数据浏览器验证</h1>
+<p class="muted">本页读取构建时从 cards.cdb 导出的 ocgcore-cards.json，并调用正式 cardReader 适配器。它只验证数据读取，不创建或启动决斗。</p>
+<div class="panel">
+ <div id="status" class="status">等待执行</div>
+ <p><button id="run">开始验证</button></p>
+ <div id="summary" class="muted">点击按钮开始检查。</div>
+</div>
+<div class="panel"><b>验证详情</b><pre id="log">DuelLab card data check ready.</pre></div>
+<script type="module" src="/ocgcore-card-data-check.js"></script>
+</body>
+</html>

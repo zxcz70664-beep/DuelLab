@@ -1,0 +1,34 @@
+name: Audit upstream card databases
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [singleplayer-v0.2]
+    paths:
+      - 'tools/audit_babelcdb.py'
+      - '.github/workflows/audit-card-database.yml'
+  schedule:
+    - cron: '23 3 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download and audit BabelCDB
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python tools/audit_babelcdb.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: babelcdb-audit
+          path: audit-output/
+          if-no-files-found: error
+          retention-days: 14
