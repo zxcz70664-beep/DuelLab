@@ -93,3 +93,34 @@ CardScripts 仓库标注 AGPL-3.0-or-later。核心、数据库、WASM wrapper�
 - BabelCDB：暂不锁定，原候选 SHA 需验证
 - CardScripts：暂不锁定，原候选 SHA 需验证
 - 禁止将当前 CardScripts/BabelCDB HEAD 直接打包进生产构建，直到完成快照兼容与许可证审查
+
+
+## 2026-11-20：CardScripts 布局与 Lua 版本审计
+
+### 已核对的上游事实
+
+- CardScripts README 声明：脚本使用 Lua 5.3，目标是 Project Ignis 的 EDOPro ocgcore。
+- CardScripts 仓库根目录包含公共脚本和常量/工具文件，例如 `constant.lua`、`utility.lua`、`proc_fusion.lua`、`proc_synchro.lua` 等。
+- 正式卡片脚本位于 `official/` 目录；审计快照 `c6ae1aa29f10f678496064a5e8525ade40286d03` 的树中包含 13,542 个 official 路径条目（其中包含目录项，不能直接视为 13,542 个有效卡片脚本）。
+- 示例脚本 `official/c14558127.lua`（灰流丽）存在，内容使用 EDOPro API，例如 `GetID`、`Effect.CreateEffect`、`Cost.SelfDiscard`、`Duel.GetPossibleOperationInfo`。
+- wrapper 0.1.6 README 的 scriptReader 约定与项目现有路径设计一致：`c数字.lua` 从 `official/` 目录读取，其余脚本从脚本根目录读取；脚本缺失应报错，不应静默返回空脚本。
+- EDOPro core pinned commit 的 Lua submodule SHA 为 `6e22fedb74cf0c9b6656e9fce8b7331db847c605`。该 Lua 上游提交将版本号更新为 Lua 5.4.8。
+- CardScripts README 却写明脚本按 Lua 5.3 编写。核心和脚本之间存在需要解释的版本声明差异；目前没有证据证明脚本在该 WASM 构建中全部兼容，也没有证据证明不兼容。
+
+### 审计结论
+
+1. **路径约定可适配**：现有 reader 可以按 wrapper 文档实现根目录/official 子目录路由。
+2. **不能锁定“全量兼容”**：Lua 上游版本标识与 CardScripts README 的目标版本声明不同，需通过实际 WASM runtime 加载验证。
+3. **先做最小兼容探针**：加载根目录公共脚本（至少 constant.lua、utility.lua）和一张正式卡片脚本（建议灰流丽 14558127），在同一个 WASM core 实例中验证脚本编译、initial_effect 初始化及缺失脚本报错行为。
+4. **不要只做语法检查**：CardScripts README 明确说明其 CI 语法检查不会覆盖所有效果函数在实际触发时的运行时错误；后续仍需做真实决斗交互测试。
+5. **许可证阻断**：CardScripts README 标示 AGPL-3.0-or-later。公开部署/分发前仍需完成许可证义务评估；本阶段只记录来源和版本，不复制整仓库脚本资源。
+
+### 当前状态更新
+
+- wrapper 0.1.6 与 EDOPro core commit：已定位
+- Lua submodule commit：已定位（上游版本号 5.4.8）
+- CardScripts 快照：候选 SHA 已观察，但未证明兼容
+- scriptReader 路径映射：已确认与上游约定一致
+- CardScripts 运行时加载：未验证
+- 卡片脚本效果运行：未验证
+- BabelCDB 与该核心/脚本组合兼容：未验证
