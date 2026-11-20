@@ -1,1 +1,11 @@
-{"name":"duellab-v01-prototype","version":"0.1.0","private":true,"scripts":{"start":"node server/server.js"}}
+{
+  "name": "duellab",
+  "version": "0.2.0",
+  "private": true,
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  }
+}
