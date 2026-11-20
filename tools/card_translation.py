@@ -4,7 +4,7 @@ def map_translation(record):
     """Return (official_name, official_description, non_official_fallback_name)."""
     record = record or {}
     text = record.get("text") or {}
-    name = text.get("sc_name") or ""
+    name = record.get("sc_name") or text.get("sc_name") or ""
     description = text.get("desc") or ""
     pendulum = text.get("pdesc") or ""
     if pendulum:
