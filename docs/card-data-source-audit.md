@@ -68,3 +68,18 @@ README 说明：
 5. 统计中文数据源对这些样本的覆盖情况。
 
 在这些验证完成前，不生成或发布“全量 OCG 卡牌数据库”，也不把数据状态标记为已验证。
+
+
+## SQLite schema 核验补充（2026-11-20）
+
+通过 BabelCDB 仓库中的 `ci/prepend.sql` 与 `util/merge-cdb.py` 源码，已核对其标准 CDB 表结构定义（这是上游建表定义，不是对某个实际发布数据库文件运行 PRAGMA 的结果）：
+
+- `datas`：`id`、`ot`、`alias`、`setcode`、`type`、`atk`、`def`、`level`、`race`、`attribute`、`category`；主键为 `id`。
+- `texts`：`id`、`name`、`desc`、`str1` 至 `str16`；主键为 `id`。
+- 合并脚本按文件名排序，把目录中的 CDB 逐个附加，并对 `datas` 与 `texts` 执行 `INSERT OR REPLACE`。因此合并顺序可能影响同 ID 冲突时最终保留的记录，DuelLab 不应盲目复刻“把所有 CDB 全合并”的做法。
+
+上游源码：
+- https://github.com/ProjectIgnis/BabelCDB/blob/master/ci/prepend.sql
+- https://github.com/ProjectIgnis/BabelCDB/blob/master/util/merge-cdb.py
+
+**仍未验证：**实际发布 CDB 文件的表结构是否完全一致、各数据库文件中 `ot` 的具体取值分布、不同发行文件之间的 ID 冲突、中文文本覆盖率。以上需要取得实际 CDB 文件后以只读 SQLite 查询验证。
