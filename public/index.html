@@ -1,35 +1,51 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DuelLab V0.1</title>
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DuelLab V0.2 双人在线测试</title>
 <style>
-:root{--bg:#091321;--p:#14243a;--l:#354d6b;--t:#edf3fb;--m:#9aadc5;--g:#e8bf70}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1b3453,#091321 65%);color:var(--t);font:14px Arial,"Microsoft YaHei",sans-serif}header{padding:13px 18px;background:#0c1829;border-bottom:1px solid var(--l);display:flex;justify-content:space-between;position:sticky;top:0}.brand{font-weight:900;letter-spacing:1px}.brand b{color:var(--g)}button{background:#203651;color:var(--t);border:1px solid var(--l);border-radius:8px;padding:8px 11px;cursor:pointer}button:hover{border-color:var(--g)}button:disabled{opacity:.35}.primary{background:#72562a}main{max-width:1400px;margin:auto;padding:14px;display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:12px}.board,.panel{background:#111f33;border:1px solid var(--l);border-radius:13px;padding:12px}.bar{display:flex;justify-content:space-between;align-items:center;background:#0b1727;padding:9px;border:1px solid #2c425e;border-radius:9px}.player{display:flex;gap:9px;align-items:center}.avatar{width:32px;height:32px;border-radius:50%;background:#294260;display:grid;place-items:center;color:var(--g);font-weight:bold}.lp{font-size:23px;font-weight:bold}.muted,small{color:var(--m)}.label{display:flex;justify-content:space-between;color:var(--m);font-size:11px;margin:9px 2px 5px}.zones{display:grid;grid-template-columns:repeat(7,minmax(38px,1fr));gap:5px}.zone{min-height:65px;border:1px dashed #4a6381;border-radius:7px;background:#1a2d4580;display:grid;place-items:center;text-align:center;color:#8fa3bc;font-size:10px;padding:4px}.monster{min-height:88px}.spell{min-height:55px}.occupied{border-style:solid;background:#29415d;color:white}.mid{display:flex;justify-content:center;gap:8px;margin:9px 0;padding:8px;background:#0b1727;border-radius:8px;color:var(--m);font-size:12px}.pill{border:1px solid #3b5574;border-radius:99px;padding:3px 9px}.active{color:var(--g);border-color:var(--g)}.handbox{margin-top:12px;padding:11px;background:#0b1727;border:1px solid #2c425e;border-radius:10px}.hand{display:flex;gap:8px;overflow:auto;padding:7px 1px}.card{flex:0 0 103px;height:137px;border:1px solid #526b8a;border-radius:8px;background:linear-gradient(145deg,#35516f,#192b43);padding:8px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer}.card.sel{outline:2px solid var(--g);transform:translateY(-3px)}.card strong{font-size:12px}.card em{font-style:normal;color:var(--g);font-size:10px}.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.side{display:flex;flex-direction:column;gap:11px}.panel h3{margin:0 0 8px;font-size:13px}.detail{min-height:110px;color:var(--m);font-size:12px}.log{height:245px;overflow:auto;font-size:11px;color:#c0cee0}.log div{padding:6px 0;border-bottom:1px solid #293d57}.warn{color:var(--g)}footer{max-width:1400px;margin:auto;padding:0 14px 18px;color:#8295ad;font-size:11px}@media(max-width:850px){main{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}}@media(max-width:560px){main{padding:7px}.board{padding:7px}.side{display:flex}.zone{min-height:52px;font-size:9px}.monster{min-height:70px}.card{flex-basis:88px;height:125px}}
+:root{color-scheme:dark;--bg:#091321;--panel:#14243a;--line:#354d6b;--text:#edf3fb;--muted:#9aadc5;--gold:#e8bf70;--green:#69c7a2;--red:#e58b8b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1b3453,#091321 65%);color:var(--text);font:14px Arial,"Microsoft YaHei",sans-serif}
+header{padding:16px 20px;background:#0c1829;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.brand{font-size:20px;font-weight:900;letter-spacing:1px}.brand b{color:var(--gold)}main{max-width:1050px;margin:22px auto;padding:0 14px;display:grid;gap:14px}.panel{background:#111f33;border:1px solid var(--line);border-radius:13px;padding:16px}.muted,small{color:var(--muted)}h2{font-size:16px;margin:0 0 12px}button,input{font:inherit;border-radius:8px;padding:10px 12px}button{background:#203651;color:var(--text);border:1px solid var(--line);cursor:pointer}button:hover{border-color:var(--gold)}button:disabled{opacity:.4;cursor:not-allowed}.primary{background:#72562a}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}input{background:#091727;color:white;border:1px solid var(--line);width:170px;text-transform:uppercase}.room-code{font-size:26px;letter-spacing:5px;color:var(--gold);font-weight:bold}.status{padding:5px 9px;border-radius:20px;border:1px solid var(--line);font-size:12px}.good{color:var(--green)}.bad{color:var(--red)}.players{display:grid;grid-template-columns:1fr 1fr;gap:10px}.player{background:#0b1727;padding:14px;border:1px solid #2c425e;border-radius:9px}.lp{font-size:30px;font-weight:bold;margin:8px 0}.actions{display:flex;gap:8px;flex-wrap:wrap}.log{max-height:220px;overflow:auto;font-size:12px}.log div{padding:7px 0;border-bottom:1px solid #293d57}.notice{line-height:1.6;color:var(--muted);font-size:12px}@media(max-width:560px){.players{grid-template-columns:1fr}main{margin:12px auto}.panel{padding:12px}}
 </style></head><body>
-<header><div><div class="brand">DUEL<b>LAB</b> <small>V0.1 原型</small></div><small>私人决斗模拟器 · 网页交互验证</small></div><div><small id="status">连接服务中…</small> <button id="reset">重置</button></div></header>
-<main><section class="board">
-<div class="bar"><div class="player"><div class="avatar">CPU</div><div><b>对手 · M∀LICE</b><br><small>先攻玩家</small></div></div><div class="lp" id="oppLP">8000</div></div>
-<div class="label"><span>对手魔法 / 陷阱区域</span><span>卡组 40 · 墓地 0 · 除外 0</span></div><div class="zones" id="os"></div><div class="zones" id="om" style="margin-top:5px"></div>
-<div class="mid"><span class="pill active" id="turn">我方回合 2</span><span class="pill" id="phase">主要阶段1</span><span class="pill">连锁 <b>0</b></span></div>
-<div class="zones" id="mm"></div><div class="zones" id="ms" style="margin-top:5px"></div><div class="label"><span>我方魔法 / 陷阱区域</span><span id="counts">卡组 40 · 墓地 0 · 除外 0</span></div>
-<div class="bar"><div class="player"><div class="avatar">YOU</div><div><b>你 · 异热同心</b><br><small>后攻玩家</small></div></div><div style="display:flex;align-items:center;gap:5px"><button id="minus">−1000</button><div class="lp" id="lp">8000</div><button id="plus">+1000</button></div></div>
-<div class="handbox"><b>我的手牌 <small id="hc">(6)</small></b><div class="hand" id="hand"></div><div class="actions"><button class="primary" id="summon" disabled>通常召唤</button><button id="special" disabled>特殊召唤（演示）</button><button id="activate" disabled>发动/使用（演示）</button><button id="draw">抽1张</button><button id="next">进入战斗阶段</button><button id="end">结束回合</button></div></div></section>
-<aside class="side"><div class="panel"><h3>卡牌详情</h3><div class="detail" id="detail">选择手牌查看详情。<p class="warn">原型阶段：尚未接入 OCGCore，卡牌效果不会真实执行。</p></div></div><div class="panel"><h3>操作日志</h3><div class="log" id="log"></div></div><div class="panel"><h3>本版范围</h3><div class="detail"><b>已实现</b><p>✓ 场地区域布局<br>✓ 手牌选择与详情<br>✓ 演示放置、抽卡、LP调整<br>✓ 阶段按钮和操作日志<br>✓ 服务端健康检查</p><b class="warn">尚未实现</b><p>真实召唤裁定、连锁、效果结算、素材管理、墓地/除外规则、玩家隐私隔离。</p></div></div></aside></main>
-<footer>非官方私人项目原型。卡牌名称仅用于交互演示；当前不能用于正式决斗，也不代表真实游戏王规则裁定。</footer>
+<header><div><div class="brand">DUEL<b>LAB</b> <small>V0.2 在线基础测试</small></div><small>房间系统 · 双人连接 · 服务端状态同步</small></div><span id="connection" class="status">尚未连接</span></header>
+<main>
+<section class="panel"><h2>加入决斗房间</h2><div class="row"><button class="primary" id="create">创建新房间</button><input id="roomInput" maxlength="6" placeholder="输入6位房间码"><button id="join">加入房间</button><button id="reconnect">重新连接</button></div><p class="notice">创建者会获得玩家1席位。另一名玩家输入房间码加入后，双方即可看到同一份服务端状态。房间暂存于服务器内存，服务重启或房间超过2小时会失效。</p></section>
+<section class="panel"><h2>当前房间</h2><div class="row"><span class="muted">房间码</span><span id="roomCode" class="room-code">------</span><span id="roomStatus" class="status">未加入</span></div><p id="mySeat" class="muted">尚未加入房间</p><div class="players"><div class="player"><div>玩家1 <span id="p0status" class="muted">未连接</span></div><div class="lp" id="lp0">8000</div><small>生命值</small></div><div class="player"><div>玩家2 <span id="p1status" class="muted">未连接</span></div><div class="lp" id="lp1">8000</div><small>生命值</small></div></div></section>
+<section class="panel"><h2>同步操作（仅在线基础测试，不是正式决斗）</h2><div class="row"><button id="draw" disabled>抽1张</button><button id="minus" disabled>-1000 LP</button><button id="plus" disabled>+1000 LP</button><button id="phase" disabled>推进阶段</button><button id="end" disabled>结束回合</button></div><p class="notice">操作由服务器更新房间状态，再广播给两名玩家。当前抽卡只同步手牌数量；尚未实现真实卡组、卡牌隐私、召唤裁定、连锁或效果结算。</p><div class="row"><span class="muted">回合归属：</span><b id="turn">玩家1</b><span class="muted">阶段：</span><b id="phaseName">主要阶段1</b><span class="muted">双方手牌数：</span><b id="hands">5 / 5</b></div></section>
+<section class="panel"><h2>操作日志</h2><div class="log" id="log"><div>等待加入房间…</div></div></section>
+</main>
 <script>
-const $=x=>document.getElementById(x),base=[
-["异热同心-我我我魔术师","效果怪兽","光 / 魔法师 / 4星","1800 / 1000","演示卡牌；真实效果尚未接入。"],
-["异热同心-刷拉拉骑士","效果怪兽","光 / 战士 / 4星","1800 / 100","②复活最多2只4星怪兽的效果尚未实现。"],
-["异热同心升阶魔法－希望加速","速攻魔法","魔法卡","—","①复活、②升阶、③墓地盖放均未实现。"],
-["灰流丽","效果怪兽","炎 / 不死族 / 3星","0 / 1800","正式卡牌示例；当前不能执行真实效果。"],
-["异热同心-哥布林骑士","效果怪兽","光 / 战士 / 4星","1800 / 100","演示卡牌；真实效果尚未接入。"],
-["无限泡影","通常陷阱","陷阱卡","—","正式卡牌示例；当前不能执行真实效果。"]];
-let hand=[],sel=-1,lp=8000,deck=40,grave=0,turn=2,phase=0,logs=[],phases=["主要阶段1","战斗阶段","主要阶段2","结束阶段"];
-function log(s){logs.unshift(new Date().toLocaleTimeString("zh-CN",{hour12:false})+" "+s);$("log").innerHTML=logs.slice(0,25).map(x=>"<div>"+x+"</div>").join("")}
-function zones(){$("os").innerHTML=["魔陷","魔陷","魔陷","魔陷","魔陷","场地","额外"].map(x=>`<div class="zone spell">${x}</div>`).join("");$("om").innerHTML=["额外","怪兽","怪兽","怪兽","怪兽","怪兽","额外"].map(x=>`<div class="zone monster">${x}</div>`).join("");$("mm").innerHTML=["额外","怪兽区","怪兽区","怪兽区","怪兽区","怪兽区","额外"].map((x,i)=>`<div class="zone monster" data-i="${i}">${x}</div>`).join("");$("ms").innerHTML=["魔陷","魔陷","魔陷","魔陷","魔陷","场地","额外"].map(x=>`<div class="zone spell">${x}</div>`).join("");document.querySelectorAll("#mm .zone").forEach(z=>z.onclick=()=>{let i=+z.dataset.i;if(sel>=0&&i>0&&i<6&&!z.classList.contains("occupied"))place(i)})}
-function render(){$("hand").innerHTML=hand.map((c,i)=>`<div class="card ${i===sel?"sel":""}" data-i="${i}"><em>${c[1]}</em><strong>${c[0]}</strong><small>${c[2]}<br>${c[3]}</small></div>`).join("");document.querySelectorAll(".card").forEach(el=>el.onclick=()=>{sel=+el.dataset.i;let c=hand[sel];$("detail").innerHTML=`<b style="color:white">${c[0]}</b><p>${c[1]} · ${c[2]}<br>${c[3]}</p>${c[4]}<p class="warn">演示模式：不会执行真实效果。</p>`;render()});$("hc").textContent=`(${hand.length})`;$("summon").disabled=sel<0||hand[sel][1]!=="效果怪兽";$("special").disabled=sel<0||hand[sel][1]!=="效果怪兽";$("activate").disabled=sel<0||hand[sel][1]==="效果怪兽"}
-function place(i){let c=hand[sel],z=document.querySelector(`#mm [data-i="${i}"]`);z.classList.add("occupied");z.innerHTML=`<b>${c[0]}</b><br><small>${c[3]}</small>`;hand.splice(sel,1);sel=-1;grave++;counts();render();log(`演示：将「${c[0]}」放置到怪兽区 ${i}（未验证召唤条件）`)}
-function counts(){$("counts").textContent=`卡组 ${deck} · 墓地 ${grave} · 除外 0`}
-function placeFirst(){let i=[1,2,3,4,5].find(i=>!document.querySelector(`#mm [data-i="${i}"]`).classList.contains("occupied"));if(i===undefined)return log("没有空置怪兽区");place(i)}
-$("summon").onclick=placeFirst;$("special").onclick=placeFirst;$("activate").onclick=()=>{if(sel>=0)log(`演示：尝试发动「${hand[sel][0]}」；未执行效果。`)};$("draw").onclick=()=>{if(!deck)return log("卡组已空");deck--;hand.push(["测试抽卡 "+(41-deck),"效果怪兽","光 / 4星","1000 / 1000","占位测试卡，不属于正式卡组。"]);counts();render();log("演示抽卡1张占位卡")};
-$("plus").onclick=()=>{lp+=1000;$("lp").textContent=lp;log("我方LP +1000（演示）")};$("minus").onclick=()=>{lp=Math.max(0,lp-1000);$("lp").textContent=lp;log("我方LP -1000（演示）")};
-$("next").onclick=()=>{phase=Math.min(phase+1,3);$("phase").textContent=phases[phase];$("next").textContent=phase===1?"进入主要阶段2":phase===2?"进入结束阶段":"阶段已推进";log("阶段切换："+phases[phase])};$("end").onclick=()=>{turn++;phase=0;$("turn").textContent="我方回合 "+turn;$("phase").textContent=phases[0];$("next").textContent="进入战斗阶段";log("演示结束回合；未执行真实回合规则")};
-function reset(){hand=base.map(x=>x.slice());sel=-1;lp=8000;deck=40;grave=0;turn=2;phase=0;logs=[];$("lp").textContent=lp;$("turn").textContent="我方回合 2";$("phase").textContent=phases[0];$("next").textContent="进入战斗阶段";$("log").innerHTML="";zones();counts();render();log("演示对局重置")}
-$("reset").onclick=reset;reset();fetch("/api/health").then(r=>r.json()).then(x=>{$("status").textContent="服务在线 · "+x.version;$("status").style.color="#69c7a2"}).catch(()=>$("status").textContent="静态预览 · 未连接服务");
+const $=id=>document.getElementById(id);
+let session=null,ws=null,state=null;
+function setConnection(text,good=false){$("connection").textContent=text;$("connection").className="status "+(good?"good":"bad")}
+function saveSession(s){session=s;try{sessionStorage.setItem("duellab-v02-session",JSON.stringify(s))}catch{}}
+function loadSession(){try{return JSON.parse(sessionStorage.getItem("duellab-v02-session")||"null")}catch{return null}}
+function setEnabled(on){["draw","minus","plus","phase","end"].forEach(id=>$(id).disabled=!on)}
+function render(s){
+ state=s;$("roomCode").textContent=s.roomId;$("roomStatus").textContent=s.status==="ready"?"双人已就绪":"等待玩家2";$("mySeat").textContent="你的席位：玩家"+(session.seat+1);
+ $("lp0").textContent=s.lp[0];$("lp1").textContent=s.lp[1];
+ for(let i=0;i<2;i++){const p=s.players[i];$( "p"+i+"status").textContent=p?(p.connected?"· 在线":"· 已加入，未连接"):"· 空位";$("p"+i+"status").className=p&&p.connected?"good":"muted"}
+ $("turn").textContent="玩家"+(s.turn+1);$("phaseName").textContent=s.phaseName;$("hands").textContent=s.handCounts.join(" / ");
+ $("log").innerHTML=s.log.slice().reverse().map(x=>"<div>"+escapeHtml(x)+"</div>").join("");
+ $("roomInput").value=s.roomId;setEnabled(!!(ws&&ws.readyState===WebSocket.OPEN));
+}
+function escapeHtml(x){return String(x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function connect(s){
+ if(ws)try{ws.close()}catch{};saveSession(s);setConnection("正在连接…");
+ const proto=location.protocol==="https:"?"wss:":"ws:";
+ ws=new WebSocket(proto+"//"+location.host+"/ws?room="+encodeURIComponent(s.roomId)+"&token="+encodeURIComponent(s.token));
+ ws.onopen=()=>setConnection("服务器已连接",true);
+ ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch{return}if(m.type==="state"||m.type==="welcome")render(m.state)};
+ ws.onclose=()=>{setConnection("连接已断开");setEnabled(false)};
+ ws.onerror=()=>setConnection("连接异常");
+}
+async function request(url){
+ const r=await fetch(url,{method:"POST",headers:{"content-type":"application/json"}});
+ const data=await r.json();if(!r.ok)throw new Error(data.error||"请求失败");return data;
+}
+$("create").onclick=async()=>{try{const d=await request("/api/rooms");connect(d);render(d.state)}catch(e){alert(e.message)}};
+$("join").onclick=async()=>{const code=$("roomInput").value.trim().toUpperCase();if(!/^[A-Z0-9]{6}$/.test(code))return alert("请输入6位房间码");try{const d=await request("/api/rooms/"+code+"/join");connect(d);render(d.state)}catch(e){alert(e.message)}};
+$("reconnect").onclick=()=>{const s=loadSession();if(!s)return alert("本浏览器没有保存房间凭证，请创建或加入房间");connect(s)};
+function send(action,extra={}){if(!ws||ws.readyState!==WebSocket.OPEN)return alert("尚未连接房间");ws.send(JSON.stringify({type:"action",action,...extra}))}
+$("draw").onclick=()=>send("draw");$("minus").onclick=()=>send("lp",{delta:-1000});$("plus").onclick=()=>send("lp",{delta:1000});$("phase").onclick=()=>send("phase");$("end").onclick=()=>send("endTurn");
+const saved=loadSession();if(saved){$("roomInput").value=saved.roomId;connect(saved)}
+fetch("/api/health").then(r=>r.json()).then(d=>{if(d.ok)document.title="DuelLab V0.2 · 在线"}).catch(()=>{});
 </script></body></html>
