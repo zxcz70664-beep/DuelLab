@@ -45,3 +45,82 @@ $("libraryResults").addEventListener("click",e=>{
   save();cards();list();toast("已加入卡组："+card.name);
 });
 loadCardCatalog();
+
+
+let duelState=null;
+function refreshDuelDecks(){
+ const sel=$("duelDeck"); if(!sel)return;
+ sel.innerHTML=decks.map(d=>'<option value="'+d.id+'">'+esc(d.name)+' ('+d.cards.filter(c=>c.zone!=="extra").length+'张主卡组)</option>').join("");
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function startDuel(){
+ const d=decks.find(x=>x.id===$("duelDeck").value);
+ if(!d)return toast("请先创建卡组");
+ const main=d.cards.filter(c=>c.zone!=="extra");
+ if(main.length<40)return toast("主卡组至少需要 40 张");
+ const pool=main.map(c=>cardCatalog.find(x=>String(x.id)===String(c.id))).filter(Boolean);
+ if(pool.length<40)return toast("当前卡组中有未关联资料库的卡牌，请从资料库添加至少 40 张卡");
+ const makeDeck=()=>shuffle(pool.map(c=>({...c})));
+ duelState={player:{lp:8000,deck:makeDeck(),hand:[],field:[],grave:[],drawn:false,summoned:false,attacked:false},ai:{lp:8000,deck:makeDeck(),hand:[],field:[],grave:[]},turn:1,phase:"player",over:false,log:["决斗开始！双方 LP：8000。"]};
+ for(let i=0;i<5;i++){duelState.player.hand.push(duelState.player.deck.pop());duelState.ai.hand.push(duelState.ai.deck.pop())}
+ $("duelControls").hidden=false;renderDuel();$("duelStatus").textContent="你的回合 · 第 1 回合";
+}
+function renderDuel(){
+ const s=duelState;if(!s)return;
+ const side=(p,label)=>'<div class="duel-side"><div class="duel-side-head"><b>'+label+'</b><strong>LP '+p.lp+'</strong></div><div class="duel-zone"><small>怪兽区域</small><div class="duel-monsters">'+p.field.map((c,i)=>'<div class="duel-monster"><b>'+esc(c.name)+'</b><span>ATK '+c.atk+' / DEF '+c.def+'</span>'+(label==="你"&&!s.over?'<button data-duel-select="'+i+'">选择</button>':"")+'</div>').join("")||'<span class="hint">空场</span>'+'</div></div><div class="duel-counts">手牌 '+p.hand.length+' · 卡组 '+p.deck.length+' · 墓地 '+p.grave.length+'</div></div>';
+ $("duelBoard").innerHTML='<div class="duel-statusbar"><b>'+(s.over?"决斗结束":(s.phase==="player"?"你的回合":"AI 回合"))+' · 第 '+s.turn+' 回合</b><span>双方 LP 变化会实时显示</span></div>'+side(s.ai,"AI")+'<div class="duel-mid">VS</div>'+side(s.player,"你")+'<div class="duel-hand"><b>你的手牌（选择一张）</b><div>'+s.player.hand.map((c,i)=>'<button data-hand="'+i+'" class="'+(s.selected===i?"selected":"")+'">'+esc(c.name)+'<small>ATK '+c.atk+'</small></button>').join("")+'</div></div><div class="duel-log">'+s.log.slice(-5).map(x=>'<p>'+esc(x)+'</p>').join("")+'</div>';
+ $("handSelect").innerHTML=s.player.hand.map((c,i)=>'<option value="'+i+'">'+esc(c.name)+'</option>').join("");
+}
+function playerDraw(){
+ const p=duelState?.player;if(!p||duelState.over||duelState.phase!=="player"||p.drawn)return;
+ if(!p.deck.length){finishDuel("你因卡组耗尽而输掉决斗");return}
+ p.hand.push(p.deck.pop());p.drawn=true;duelState.log.push("你抽了 1 张卡。");renderDuel();
+}
+function playerSummon(){
+ const s=duelState,p=s?.player;if(!p||s.over||s.phase!=="player"||p.summoned)return;
+ const i=Number($("handSelect").value),c=p.hand[i];if(!c)return;
+ if(!(Number(c.type)&1))return toast("简化测试模式目前只允许通常召唤怪兽");
+ if(p.field.length>=5)return toast("怪兽区域已满");
+ p.hand.splice(i,1);p.field.push(c);p.summoned=true;s.log.push("你通常召唤了「"+c.name+"」。");renderDuel();
+}
+function playerAttack(){
+ const s=duelState,p=s?.player,a=s?.ai;if(!p||s.over||s.phase!=="player"||p.attacked)return;
+ const i=s.selectedField??(p.field.length-1),att=p.field[i];if(!att)return toast("请先在场上选择攻击怪兽");
+ const target=a.field[0];
+ if(target){
+  if(att.atk>target.atk){a.grave.push(a.field.shift());a.lp-=att.atk-target.atk;s.log.push(att.name+" 击破 "+target.name+"，AI 受到 "+(att.atk-target.atk)+" 伤害。")}
+  else if(att.atk<target.atk){p.grave.push(p.field.splice(i,1)[0]);p.lp-=target.atk-att.atk;s.log.push(att.name+" 被 "+target.name+" 击破，你受到 "+(target.atk-att.atk)+" 伤害。")}
+  else{s.log.push("双方怪兽攻击力相同，均未被破坏。")}
+ }else{a.lp-=Number(att.atk)||0;s.log.push(att.name+" 直接攻击，AI 受到 "+att.atk+" 伤害。")}
+ p.attacked=true;if(a.lp<=0)finishDuel("你赢得了决斗！");else if(p.lp<=0)finishDuel("AI 赢得了决斗。");else renderDuel();
+}
+function finishDuel(message){duelState.over=true;duelState.log.push(message);$("duelStatus").textContent=message;renderDuel()}
+function endPlayerTurn(){
+ const s=duelState;if(!s||s.over||s.phase!=="player")return;
+ s.phase="ai";s.log.push("你结束了回合。");
+ const a=s.ai,p=s.player;
+ if(a.deck.length)a.hand.push(a.deck.pop());
+ const monsters=a.hand.filter(c=>(Number(c.type)&1)).sort((x,y)=>(Number(y.atk)||0)-(Number(x.atk)||0));
+ if(monsters.length&&a.field.length<5){const c=monsters[0],i=a.hand.indexOf(c);a.hand.splice(i,1);a.field.push(c);s.log.push("AI 通常召唤了「"+c.name+"」。")}
+ if(a.field.length){
+  const attacker=a.field.slice().sort((x,y)=>(Number(y.atk)||0)-(Number(x.atk)||0))[0],target=p.field[0];
+  if(target){
+   if(attacker.atk>target.atk){p.grave.push(p.field.shift());p.lp-=attacker.atk-target.atk;s.log.push("AI 击破 "+target.name+"，你受到 "+(attacker.atk-target.atk)+" 伤害。")}
+   else if(attacker.atk<target.atk){a.grave.push(a.field.splice(a.field.indexOf(attacker),1)[0]);a.lp-=target.atk-attacker.atk;s.log.push("你的 "+target.name+" 击破 AI 怪兽。")}
+  }else{p.lp-=Number(attacker.atk)||0;s.log.push("AI 直接攻击，你受到 "+attacker.atk+" 伤害。")}
+ }
+ if(p.lp<=0){finishDuel("AI 赢得了决斗。");return}
+ s.turn++;s.phase="player";p.drawn=false;p.summoned=false;p.attacked=false;s.selectedField=undefined;
+ $("duelStatus").textContent="你的回合 · 第 "+s.turn+" 回合";renderDuel();
+}
+$("startDuel").onclick=startDuel;
+$("drawCard").onclick=playerDraw;
+$("summonCard").onclick=playerSummon;
+$("attackCard").onclick=playerAttack;
+$("endTurn").onclick=endPlayerTurn;
+$("duelBoard").addEventListener("click",e=>{
+ const h=e.target.closest("[data-hand]");if(h){duelState.selected=Number(h.dataset.hand);$("handSelect").value=h.dataset.hand;renderDuel();return}
+ const m=e.target.closest("[data-duel-select]");if(m){duelState.selectedField=Number(m.dataset.duelSelect);toast("已选择场上怪兽");}
+});
+
+refreshDuelDecks();
