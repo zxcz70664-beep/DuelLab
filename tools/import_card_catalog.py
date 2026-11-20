@@ -27,12 +27,12 @@ for r in rows:
     cards.append({
       "id":cid,"ot":ot,"type":typ,"atk":atk,"def":df,"level":level,
       "race":race,"attribute":attribute,"category":category,
-      "name":name,"name_ja":name,"desc":desc or "","desc_ja":desc or "",
+      "name":name,"source_name":name,"desc":desc or "","source_desc":desc or "",
       "name_zh":None,"desc_zh":None,
       "data_status":"upstream_cdb_imported","script_status":"not_verified",
       "rule_status":"not_verified","image_status":"not_imported"
     })
 OUT.write_text(json.dumps({"source":"ProjectIgnis/BabelCDB/cards.cdb","source_url":URL,
- "language_policy":"zh-CN when verified translation exists; otherwise Japanese original",
+ "language_policy":"upstream CDB text retained as-is; language is not asserted; verified zh-CN and Japanese sources are pending",
  "count":len(cards),"cards":cards},ensure_ascii=False,separators=(",",":")),encoding="utf-8")
 print("Imported",len(cards),"card records into",OUT)
