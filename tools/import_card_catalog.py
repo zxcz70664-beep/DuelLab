@@ -25,8 +25,9 @@ try:
 finally:
     conn.close()
 
-# 百鸽 cards.zip uses the card passcode as its record key and provides sc_name
-# (official Simplified Chinese name) plus text.desc (Simplified Chinese effect).
+# 百鸽 cards.zip keys records by official card password. The official simplified
+# Chinese name is text.sc_name; the main effect is text.desc and Pendulum text
+# is separately stored in text.pdesc.
 zh_records = {}
 zh_error = None
 try:
@@ -53,8 +54,10 @@ for r in rows:
         continue
     zh = zh_records.get(str(cid), {})
     text_zh = zh.get("text") or {}
-    official_zh_name = zh.get("sc_name") or (text_zh.get("sc_name") or "")
+    official_zh_name = text_zh.get("sc_name") or ""
     official_zh_desc = text_zh.get("desc") or ""
+    if text_zh.get("pdesc"):
+        official_zh_desc = "〖灵摆效果〗\\n" + text_zh["pdesc"] + ("\\n〖怪兽效果〗\\n" if official_zh_desc else "") + official_zh_desc
     if official_zh_name or official_zh_desc:
         zh_matched += 1
     cards.append({
@@ -71,7 +74,7 @@ for r in rows:
 OUT.write_text(json.dumps({
  "source":"ProjectIgnis/BabelCDB/cards.cdb","source_url":CDB_URL,
  "translation_source":"ygocdb.com/api/v0/cards.zip","translation_url":ZH_URL,
- "language_policy":"Show official Simplified Chinese sc_name/text.desc when available; otherwise retain the upstream CDB text. cn_name is stored separately as a non-official fallback and is not silently presented as official.",
+ "language_policy":"Show official Simplified Chinese text.sc_name and text.desc (plus text.pdesc when present); otherwise retain upstream CDB text. cn_name is stored separately as a non-official fallback.",
  "translation_records_matched":zh_matched,"translation_download_error":zh_error,
  "archetype_tag_policy":"ZEXAL tag is a name/text keyword grouping for discovery, not an official exhaustive archetype ruling",
  "count":len(cards),"cards":cards
