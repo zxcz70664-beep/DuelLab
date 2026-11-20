@@ -9,7 +9,7 @@ async function loadCardCatalog(){
     if(!response.ok)throw new Error("HTTP "+response.status);
     const payload=await response.json();
     cardCatalog=payload.cards||[];
-    count.textContent="已载入 "+cardCatalog.length.toLocaleString("zh-CN")+" 张卡牌 · 优先显示官方简体中文";
+    count.textContent="已载入 "+cardCatalog.length.toLocaleString("zh-CN")+" 张卡牌 · 官方简中名称 "+Number(payload.official_zh_name_count||0).toLocaleString("zh-CN")+" 张 · 官方简中效果 "+Number(payload.official_zh_desc_count||0).toLocaleString("zh-CN")+" 张";
     renderCardSearch("");
   }catch(error){
     count.textContent="卡牌数据载入失败";
@@ -28,7 +28,7 @@ function renderCardSearch(query){
   const found=cardCatalog.filter(c=>zexalQuery
     ? (c.archetypes||[]).includes("ZEXAL")
     : [c.name,c.name_zh,c.name_zh_fallback,c.desc,c.desc_zh].some(v=>(v||"").toLocaleLowerCase().includes(q))).slice(0,120);
-  results.innerHTML=found.map(c=>{const desc=cardDisplayDesc(c);return '<article class="library-card"><div class="library-card-head"><b>'+esc(cardDisplayName(c))+'</b><small>ID '+c.id+'</small></div><p>'+esc(desc.slice(0,260))+(desc.length>260?"…":"")+'</p><div class="library-card-meta"><span>'+esc(cardTypeLabel(c.type))+'</span><span>ATK '+c.atk+' / DEF '+c.def+'</span><span>'+(c.name_zh||c.desc_zh?"简中资料可用":"暂无官方简中译文")+' · 脚本未验证</span><button data-add-catalog="'+c.id+'">加入当前卡组</button></div></article>'}).join("")||'<p class="hint">没有找到匹配卡牌。</p>';
+  results.innerHTML=found.map(c=>{const desc=cardDisplayDesc(c);return '<article class="library-card"><div class="library-card-head"><b>'+esc(cardDisplayName(c))+'</b><small>ID '+c.id+'</small></div><p>'+esc(desc.slice(0,260))+(desc.length>260?"…":"")+'</p><div class="library-card-meta"><span>'+esc(cardTypeLabel(c.type))+'</span><span>ATK '+c.atk+' / DEF '+c.def+'</span><span>'+(c.name_zh?"官方简中名称":(c.name_zh_fallback?"通用中文译名":"原文名称"))+(c.desc_zh?" · 官方简中效果":" · 无官方简中效果")+' · 脚本未验证</span><button data-add-catalog="'+c.id+'">加入当前卡组</button></div></article>'}).join("")||'<p class="hint">没有找到匹配卡牌。</p>';
 }
 function cardTypeLabel(type){
   const t=Number(type)||0, labels=[];
