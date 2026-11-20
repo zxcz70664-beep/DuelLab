@@ -50,3 +50,21 @@ test('basic deck structure validation is implemented without claiming banlist va
   assert.match(js, /n>3/);
   assert.match(html, /禁限卡表与特殊构筑限制尚未检查/);
 });
+
+
+test('deck validation module enforces size limits and duplicate cap', () => {
+  const { validateDeck } = require('../public/deck-validation.js');
+  const make = (count, zone, prefix='Card') => Array.from({length:count}, (_,i)=>({name:prefix+' '+i,zone}));
+  assert.equal(validateDeck({cards:make(40,'main')}).ok,true);
+  assert.ok(validateDeck({cards:make(39,'main')}).errors.some(e=>e.includes('40–60')));
+  assert.ok(validateDeck({cards:make(61,'main')}).errors.some(e=>e.includes('40–60')));
+  assert.ok(validateDeck({cards:[...make(40,'main'),...make(16,'extra')]}).errors.some(e=>e.includes('额外卡组')));
+  assert.ok(validateDeck({cards:[...make(39,'main'),...Array.from({length:4},()=>({name:'Blue-Eyes White Dragon',zone:'main'}))]}).errors.some(e=>e.includes('同名卡')));
+});
+
+test('deck validation module handles missing and blank card names safely', () => {
+  const { validateDeck } = require('../public/deck-validation.js');
+  const result = validateDeck({cards:[{name:'',zone:'main'},{zone:'main'}]});
+  assert.equal(result.main,2);
+  assert.equal(result.duplicates.length,0);
+});
