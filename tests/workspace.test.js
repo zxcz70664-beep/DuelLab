@@ -25,7 +25,7 @@ test('the four main workspace pages are present', () => {
 test('deck management controls are wired in the client script', () => {
   for (const id of ['newDeck', 'deckName', 'addCard', 'deleteDeck', 'exportDeck', 'importDeck']) {
     assert.ok(html.includes('id="' + id + '"'), 'missing HTML control: ' + id);
-    assert.ok(js.includes("$('" + id + "')"), 'control is not referenced by app.js: ' + id);
+    assert.ok(js.includes('$("#' + id + '")') || js.includes('$("' + id + '")'), 'control is not referenced by app.js: ' + id);
   }
 });
 
