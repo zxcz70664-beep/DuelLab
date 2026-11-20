@@ -40,8 +40,8 @@ except Exception as exc:
 def archetypes(name, desc):
     text = (name or "") + " " + (desc or "")
     tags = []
-    if (re.search(r"\b(?:ZW|ZS|DZW|SZW)\\s*-", text, re.I)
-        or re.search(r"\bZexal\\b|\\bUtopia\\b|\\bUtopic\\b", text, re.I)):
+    if (re.search(r"\b(?:ZW|ZS|DZW|SZW)\s*-", text, re.I)
+        or re.search(r"\bZexal\b|\bUtopia\b|\bUtopic\b", text, re.I)):
         tags.append("ZEXAL")
     return tags
 
@@ -53,7 +53,7 @@ for r in rows:
         continue
     zh = zh_records.get(str(cid), {})
     text_zh = zh.get("text") or {}
-    official_zh_name = zh.get("sc_name") or ""
+    official_zh_name = zh.get("sc_name") or (text_zh.get("sc_name") or "")
     official_zh_desc = text_zh.get("desc") or ""
     if official_zh_name or official_zh_desc:
         zh_matched += 1
