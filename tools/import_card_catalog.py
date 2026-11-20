@@ -2,6 +2,7 @@
 """Build DuelLab's card catalog with Chinese display text and Project Ignis runtime data."""
 import io, json, re, sqlite3, urllib.request, zipfile
 from pathlib import Path
+from card_translation import map_translation
 
 CDB_URL = "https://raw.githubusercontent.com/ProjectIgnis/BabelCDB/master/cards.cdb"
 ZH_URL = "https://ygocdb.com/api/v0/cards.zip"
@@ -53,11 +54,7 @@ for r in rows:
     if not name:
         continue
     zh = zh_records.get(str(cid), {})
-    text_zh = zh.get("text") or {}
-    official_zh_name = text_zh.get("sc_name") or ""
-    official_zh_desc = text_zh.get("desc") or ""
-    if text_zh.get("pdesc"):
-        official_zh_desc = "〖灵摆效果〗\\n" + text_zh["pdesc"] + ("\\n〖怪兽效果〗\\n" if official_zh_desc else "") + official_zh_desc
+    official_zh_name, official_zh_desc, fallback_zh_name = map_translation(zh)
     if official_zh_name or official_zh_desc:
         zh_matched += 1
     cards.append({
@@ -65,7 +62,7 @@ for r in rows:
       "race":race,"attribute":attribute,"category":category,
       "name":name,"source_name":name,"desc":desc or "","source_desc":desc or "",
       "name_zh":official_zh_name or None,"desc_zh":official_zh_desc or None,
-      "name_zh_fallback":zh.get("cn_name") or None,
+      "name_zh_fallback":fallback_zh_name,
       "archetypes":archetypes(name, desc),
       "data_status":"upstream_cdb_imported",
       "translation_status":"official_sc_zh_available" if official_zh_name or official_zh_desc else "no_official_sc_zh",
