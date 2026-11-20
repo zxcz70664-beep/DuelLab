@@ -14,6 +14,17 @@ class TranslationMappingTests(unittest.TestCase):
         self.assertEqual(desc, "官方效果")
         self.assertEqual(fallback, "社区译名")
 
+
+    def test_cards_zip_top_level_official_name(self):
+        name, desc, fallback = map_translation({
+            "sc_name": "青眼白龙",
+            "cn_name": "青眼白龙译名",
+            "text": {"desc": "通常怪兽描述"}
+        })
+        self.assertEqual(name, "青眼白龙")
+        self.assertEqual(desc, "通常怪兽描述")
+        self.assertEqual(fallback, "青眼白龙译名")
+
     def test_pendulum_and_monster_effect_are_both_preserved(self):
         _, desc, _ = map_translation({
             "text": {"pdesc": "灵摆效果", "desc": "怪兽效果"}
