@@ -2,7 +2,7 @@
 """Build DuelLab's card catalog with Chinese display text and Project Ignis runtime data."""
 import io, json, re, sqlite3, urllib.request, zipfile
 from pathlib import Path
-from card_translation import map_translation
+from card_translation import map_translation, index_records_by_password
 
 CDB_URL = "https://raw.githubusercontent.com/ProjectIgnis/BabelCDB/master/cards.cdb"
 ZH_URL = "https://ygocdb.com/api/v0/cards.zip"
@@ -35,13 +35,8 @@ try:
     archive = zipfile.ZipFile(io.BytesIO(download(ZH_URL)))
     with archive.open("cards.json") as stream:
         raw_zh_records = json.load(stream)
-        # cards.json is keyed by Konami CID, while BabelCDB datas.id is the
-        # printed card password. Build the join index using each record's id.
-        zh_records = {
-            str(record.get("id")): record
-            for record in raw_zh_records.values()
-            if isinstance(record, dict) and record.get("id") is not None
-        }
+        # cards.json is keyed by Konami CID; join to BabelCDB via password.
+        zh_records = index_records_by_password(raw_zh_records)
 except Exception as exc:
     # Keep the build usable if the translation service is temporarily unavailable.
     zh_error = str(exc)
