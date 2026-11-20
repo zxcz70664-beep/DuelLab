@@ -12,3 +12,11 @@ def map_translation(record):
             "\n〖怪兽效果〗\n" if description else ""
         ) + description
     return name or None, description or None, record.get("cn_name") or None
+
+def index_records_by_password(records):
+    """Index YGOCDB CID-keyed records by their printed card password (id)."""
+    return {
+        str(record.get("id")): record
+        for record in (records or {}).values()
+        if isinstance(record, dict) and record.get("id") is not None
+    }
