@@ -34,7 +34,14 @@ zh_error = None
 try:
     archive = zipfile.ZipFile(io.BytesIO(download(ZH_URL)))
     with archive.open("cards.json") as stream:
-        zh_records = json.load(stream)
+        raw_zh_records = json.load(stream)
+        # cards.json is keyed by Konami CID, while BabelCDB datas.id is the
+        # printed card password. Build the join index using each record's id.
+        zh_records = {
+            str(record.get("id")): record
+            for record in raw_zh_records.values()
+            if isinstance(record, dict) and record.get("id") is not None
+        }
 except Exception as exc:
     # Keep the build usable if the translation service is temporarily unavailable.
     zh_error = str(exc)
@@ -48,15 +55,18 @@ def archetypes(name, desc):
     return tags
 
 cards = []
-zh_matched = 0
+zh_name_matched = 0
+zh_desc_matched = 0
 for r in rows:
     cid,ot,typ,atk,df,level,race,attribute,category,name,desc = r
     if not name:
         continue
     zh = zh_records.get(str(cid), {})
     official_zh_name, official_zh_desc, fallback_zh_name = map_translation(zh)
-    if official_zh_name or official_zh_desc:
-        zh_matched += 1
+    if official_zh_name:
+        zh_name_matched += 1
+    if official_zh_desc:
+        zh_desc_matched += 1
     cards.append({
       "id":cid,"ot":ot,"type":typ,"atk":atk,"def":df,"level":level,
       "race":race,"attribute":attribute,"category":category,
@@ -72,8 +82,8 @@ OUT.write_text(json.dumps({
  "source":"ProjectIgnis/BabelCDB/cards.cdb","source_url":CDB_URL,
  "translation_source":"ygocdb.com/api/v0/cards.zip","translation_url":ZH_URL,
  "language_policy":"Show official Simplified Chinese text.sc_name and text.desc (plus text.pdesc when present); otherwise retain upstream CDB text. cn_name is stored separately as a non-official fallback.",
- "translation_records_matched":zh_matched,"translation_download_error":zh_error,
+ "official_zh_name_count":zh_name_matched,"official_zh_desc_count":zh_desc_matched,"translation_download_error":zh_error,
  "archetype_tag_policy":"ZEXAL tag is a name/text keyword grouping for discovery, not an official exhaustive archetype ruling",
  "count":len(cards),"cards":cards
 },ensure_ascii=False,separators=(",",":")),encoding="utf-8")
-print("Imported",len(cards),"cards;",zh_matched,"have Chinese text; output",OUT)
+print("Imported",len(cards),"cards;",zh_name_matched,"official Chinese names;",zh_desc_matched,"official Chinese effect texts; output",OUT)
