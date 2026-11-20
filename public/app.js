@@ -21,8 +21,11 @@ function renderCardSearch(query){
   if(!results)return;
   const q=query.trim().toLocaleLowerCase();
   if(!cardCatalog.length){results.innerHTML='<p class="hint">卡牌数据尚未载入。</p>';return}
-  if(!q){results.innerHTML='<p class="hint">输入日文卡名或效果关键词开始搜索。</p>';return}
-  const found=cardCatalog.filter(c=>(c.name||"").toLocaleLowerCase().includes(q)||(c.desc||"").toLocaleLowerCase().includes(q)).slice(0,60);
+  if(!q){results.innerHTML='<p class="hint">输入卡名、效果关键词，或搜索“异热同心”查看 ZEXAL / ZW / ZS / 希望皇相关卡。</p>';return}
+  const zexalQuery=["异热同心","zexal","ゼアル"].includes(q);
+  const found=cardCatalog.filter(c=>zexalQuery
+    ? (c.archetypes||[]).includes("ZEXAL")
+    : (c.name||"").toLocaleLowerCase().includes(q)||(c.desc||"").toLocaleLowerCase().includes(q)).slice(0,120);
   results.innerHTML=found.map(c=>'<article class="library-card"><div class="library-card-head"><b>'+esc(c.name)+'</b><small>ID '+c.id+'</small></div><p>'+esc((c.desc||"暂无原始效果文本").slice(0,260))+(c.desc&&c.desc.length>260?"…":"")+'</p><div class="library-card-meta"><span>'+esc(cardTypeLabel(c.type))+'</span><span>ATK '+c.atk+' / DEF '+c.def+'</span><span>资料已导入 · 脚本未验证</span><button data-add-catalog="'+c.id+'">加入当前卡组</button></div></article>').join("")||'<p class="hint">没有找到匹配卡牌。</p>';
 }
 function cardTypeLabel(type){
