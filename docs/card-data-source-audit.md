@@ -2,7 +2,7 @@
 
 ## 本轮核验结论
 
-本轮完成上游项目说明与公开仓库结构核验；没有下载或执行 SQLite 数据库，也没有导入卡牌数据。因此以下结论不等于完成了数据库级验证。
+本轮完成上游项目说明与公开仓库文件列表核验；没有下载或执行 SQLite 数据库，也没有导入卡牌数据。因此以下结论不等于完成了数据库级验证。
 
 ### 1. Project Ignis BabelCDB
 
@@ -13,15 +13,15 @@
 README 明确说明：
 - 数据库是供 EDOPro 使用的 SQLite3 CDB 文件。
 - 新卡先以 preRelease CDB 形式存在；正式发行后更新卡牌 ID 并移除 prerelease OT。
-- 同时在 OCG 与 TCG 发售的卡片会移动到 official.cdb。
+- 同时在 OCG 与 TCG 发售的卡片按维护规则归入 official 数据库。
 - 仅在单一区域发行的卡片可保留在独立 release + setname 文件中。
-- Rush Duel 有独立数据库与 prerelease 文件。
-- unofficial 卡牌有独立数据库。
+- Rush Duel 与 unofficial 卡牌有独立数据库/文件。
+
+**重要文件名核对：**当前 BabelCDB 仓库文件列表中可见 `cards.cdb`、`cards-rush.cdb`、`cards-unofficial.cdb`、`cards-skills.cdb` 及多个 prerelease 文件；README 使用的 `official.cdb` 是发行分类说明中的名称。不能未经检查就把这两个文件名视为同一文件，也不能仅凭文件名推断 `cards.cdb` 的完整收录范围。
 
 **对 DuelLab 的影响：**
-- official.cdb 是较强的 OCG/TCG 双区正式发行候选集合，但不能据此覆盖全部 OCG-only 卡。
-- OCG-only 卡需要从对应地区发行数据库中识别，不能只导入 official.cdb。
-- 不能导入全部 release、prerelease、unofficial、Rush 或 skills 文件后就称为 OCG 官方卡池。
+- OCG/TCG 双区正式发行卡与 OCG-only 卡必须分别识别。
+- 不能把仓库中的所有 CDB、release、prerelease、unofficial、Rush 或 skills 文件无差别合并成 OCG 官方卡池。
 - README 的发行分类规则可用于制定筛选流程，但实际导入必须进一步读取 CDB 内部记录、字段和 OT 值，并抽样核对发行证据。
 
 ### 2. YAML Yugi
@@ -49,8 +49,8 @@ README 说明：
 | 项目 | 状态 | 说明 |
 |---|---|---|
 | CDB 文件采用 SQLite3 | 已由上游 README 确认 | 具体表结构仍需读取实际文件 |
-| OCG/TCG 双区卡转入 official.cdb | 已由上游 README 确认 | 不代表 OCG-only 卡全部在其中 |
-| OCG-only 卡分布于地区发行文件 | README 提供分类规则 | 具体文件清单与 OT 值待逐文件审计 |
+| OCG/TCG 双区卡的归类原则 | 已由上游 README 确认 | 不能仅凭当前文件名确认对应数据文件 |
+| OCG-only 卡分布 | README 提供分类规则 | 具体文件清单与 OT 值待逐文件审计 |
 | prerelease 与正式卡区分 | 已由 README 确认 | 需要排除未正式发行记录 |
 | Rush / unofficial / skills 独立分类 | 仓库文件与 README 可见 | 导入时必须排除 |
 | 中文文本覆盖率 | 未验证 | 需样本统计 |
