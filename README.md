@@ -28,3 +28,8 @@ DuelLab 是私人网页端游戏王决斗模拟器项目，当前开发方向为
 
 ## 部署
 项目沿用根目录 Dockerfile 和 Node.js 静态服务入口。只有通过阶段验收后才考虑部署，不覆盖现有 V0.1。
+
+
+## OCGCore 接入路线
+
+技术决策与阶段验收见 [OCGCore 接入方案](docs/OCGCORE_INTEGRATION.md)。当前尚未接入真实规则核心；现有决斗页仍是简化测试模式。
