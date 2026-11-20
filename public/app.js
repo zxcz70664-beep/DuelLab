@@ -9,7 +9,7 @@ async function loadCardCatalog(){
     if(!response.ok)throw new Error("HTTP "+response.status);
     const payload=await response.json();
     cardCatalog=payload.cards||[];
-    count.textContent="已载入 "+cardCatalog.length.toLocaleString("zh-CN")+" 张卡牌 · 日文原文";
+    count.textContent="已载入 "+cardCatalog.length.toLocaleString("zh-CN")+" 张卡牌 · 上游原始文本";
     renderCardSearch("");
   }catch(error){
     count.textContent="卡牌数据载入失败";
@@ -23,7 +23,7 @@ function renderCardSearch(query){
   if(!cardCatalog.length){results.innerHTML='<p class="hint">卡牌数据尚未载入。</p>';return}
   if(!q){results.innerHTML='<p class="hint">输入日文卡名或效果关键词开始搜索。</p>';return}
   const found=cardCatalog.filter(c=>(c.name||"").toLocaleLowerCase().includes(q)||(c.desc||"").toLocaleLowerCase().includes(q)).slice(0,60);
-  results.innerHTML=found.map(c=>'<article class="library-card"><div class="library-card-head"><b>'+esc(c.name)+'</b><small>ID '+c.id+'</small></div><p>'+esc((c.desc||"暂无效果文本").slice(0,260))+(c.desc&&c.desc.length>260?"…":"")+'</p><div class="library-card-meta"><span>'+esc(cardTypeLabel(c.type))+'</span><span>ATK '+c.atk+' / DEF '+c.def+'</span><span>资料已导入 · 脚本未验证</span><button data-add-catalog="'+c.id+'">加入当前卡组</button></div></article>').join("")||'<p class="hint">没有找到匹配卡牌。</p>';
+  results.innerHTML=found.map(c=>'<article class="library-card"><div class="library-card-head"><b>'+esc(c.name)+'</b><small>ID '+c.id+'</small></div><p>'+esc((c.desc||"暂无原始效果文本").slice(0,260))+(c.desc&&c.desc.length>260?"…":"")+'</p><div class="library-card-meta"><span>'+esc(cardTypeLabel(c.type))+'</span><span>ATK '+c.atk+' / DEF '+c.def+'</span><span>资料已导入 · 脚本未验证</span><button data-add-catalog="'+c.id+'">加入当前卡组</button></div></article>').join("")||'<p class="hint">没有找到匹配卡牌。</p>';
 }
 function cardTypeLabel(type){
   const t=Number(type)||0, labels=[];
