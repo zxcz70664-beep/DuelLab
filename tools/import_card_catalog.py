@@ -3,11 +3,13 @@
 import io, json, re, sqlite3, urllib.request, zipfile
 from pathlib import Path
 from card_translation import map_translation, index_records_by_password
+from export_ocgcore_card_data import export_database
 
 CDB_URL = "https://raw.githubusercontent.com/ProjectIgnis/BabelCDB/master/cards.cdb"
 ZH_URL = "https://ygocdb.com/api/v0/cards.zip"
 DB = Path("/tmp/duellab-cards.cdb")
 OUT = Path("public/cards.json")
+OCGCORE_OUT = Path("public/ocgcore-cards.json")
 
 def download(url):
     req = urllib.request.Request(url, headers={"User-Agent":"DuelLab-card-import"})
@@ -15,6 +17,9 @@ def download(url):
         return response.read()
 
 DB.write_bytes(download(CDB_URL))
+# Export the complete rules-facing card records separately from the display catalog.
+# This JSON is consumed by the browser cardReader adapter (race -> BigInt).
+ocgcore_count = export_database(DB, OCGCORE_OUT)
 conn = sqlite3.connect("file:" + str(DB) + "?mode=ro&immutable=1", uri=True)
 try:
     rows = conn.execute("""
@@ -81,4 +86,5 @@ OUT.write_text(json.dumps({
  "archetype_tag_policy":"ZEXAL tag is a name/text keyword grouping for discovery, not an official exhaustive archetype ruling",
  "count":len(cards),"cards":cards
 },ensure_ascii=False,separators=(",",":")),encoding="utf-8")
+print("Exported",ocgcore_count,"OCGCore runtime records to",OCGCORE_OUT)
 print("Imported",len(cards),"cards;",zh_name_matched,"official Chinese names;",zh_desc_matched,"official Chinese effect texts; output",OUT)
