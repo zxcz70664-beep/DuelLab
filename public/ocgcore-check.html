@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101827">
-<title>DuelLab · OCGCore 浏览器加载验证</title>
+<title>DuelLab · OCGCore 最小 Duel 实例验证</title>
 <style>
 :root{color-scheme:dark;font-family:system-ui,"Microsoft YaHei",sans-serif;background:#0b1220;color:#e8eef8}
 body{max-width:900px;margin:0 auto;padding:32px 20px}
@@ -23,12 +23,13 @@ small{color:#9baac0}
 <body>
 <small>DUELLAB / ENGINE SPIKE / 0.2</small>
 <h1>OCGCore 浏览器加载验证</h1>
-<p class="muted">此页面只验证 WASM 核心能否在当前浏览器初始化并读取核心版本。它不会创建真实决斗，也不代表卡牌数据库、Lua 脚本或完整 OCG 规则已经接入。</p>
+<p class="muted">此页面验证 OCGCore 模块加载、WASM 初始化、核心版本读取，以及 MR5 Duel 实例的创建和释放。当前仅创建空 Duel，不添加卡片、不启动决斗。</p>
 <div class="panel">
  <div id="step1" class="status"><i class="dot"></i><b>1. 浏览器环境</b><span>等待验证</span></div>
  <div id="step2" class="status"><i class="dot"></i><b>2. 加载 OCGCore 模块</b><span>等待验证</span></div>
  <div id="step3" class="status"><i class="dot"></i><b>3. 初始化 WASM</b><span>等待验证</span></div>
  <div id="step4" class="status"><i class="dot"></i><b>4. 读取核心版本</b><span>等待验证</span></div>
+ <div id="step5" class="status"><i class="dot"></i><b>5. 创建并释放 Duel</b><span>等待验证</span></div>
  <p style="margin:18px 0 8px"><button id="run">开始验证 / 重新验证</button></p>
  <p id="summary" class="muted">尚未开始。点击按钮执行验证。</p>
 </div>
@@ -37,5 +38,5 @@ small{color:#9baac0}
  <pre id="log">DuelLab OCGCore browser check ready.</pre>
 </div>
 <p class="muted"><small>测试依赖：JSR @n1xx1/ocgcore-wasm@0.1.6，经 esm.sh 提供浏览器 ESM 入口。网络/CDN 拦截、WASM 下载失败或浏览器兼容问题都会显示在日志中。</small></p>
-<script type="module" src="/ocgcore-check.js?v=284b06d"></script>
+<script type="module" src="/ocgcore-check.js?v=duel1"></script>
 </body></html>
