@@ -1,0 +1,63 @@
+const $ = (id) => document.getElementById(id);
+const log = (message) => {
+  const el = $("log");
+  el.textContent += "\n" + new Date().toLocaleTimeString() + "  " + message;
+  el.scrollTop = el.scrollHeight;
+};
+const setStep = (id, state, message) => {
+  const el = $(id);
+  el.className = "status " + state;
+  el.querySelector("span").textContent = message;
+};
+const reset = () => {
+  for (const id of ["step1","step2","step3","step4"]) setStep(id,"","等待验证");
+  $("summary").textContent = "验证执行中…";
+  $("log").textContent = "DuelLab OCGCore browser check started.";
+};
+$("run").addEventListener("click", async () => {
+  $("run").disabled = true;
+  reset();
+  try {
+    const supported = typeof WebAssembly === "object" && typeof WebAssembly.instantiate === "function";
+    if (!supported) throw new Error("当前浏览器不支持 WebAssembly。");
+    setStep("step1","ok","支持 WebAssembly");
+    log("Browser: " + navigator.userAgent);
+    log("WebAssembly detected.");
+
+    setStep("step2","running","正在从 esm.sh 加载 JSR 0.1.6…");
+    const moduleUrl = "https://esm.sh/jsr/@n1xx1/ocgcore-wasm@0.1.6?bundle";
+    const coreModule = await import(moduleUrl);
+    if (typeof coreModule.createCore !== "function") {
+      throw new Error("模块已下载，但没有导出 createCore；请检查 CDN 转换结果。");
+    }
+    setStep("step2","ok","模块加载成功");
+    log("Module imported: " + moduleUrl);
+    log("Exports: " + Object.keys(coreModule).slice(0,30).join(", "));
+
+    setStep("step3","running","正在初始化 WASM…");
+    const core = await coreModule.createCore({sync:true});
+    if (!core || typeof core.getVersion !== "function") {
+      throw new Error("WASM 初始化未返回预期的核心接口。");
+    }
+    setStep("step3","ok","WASM 初始化成功");
+    log("createCore({sync:true}) completed.");
+
+    setStep("step4","running","正在读取版本…");
+    const version = core.getVersion();
+    if (!Array.isArray(version) || version.length < 2) {
+      throw new Error("核心已初始化，但 getVersion() 返回值异常：" + JSON.stringify(version));
+    }
+    setStep("step4","ok","OCGCore " + version[0] + "." + version[1]);
+    $("summary").textContent = "通过：当前浏览器成功加载 OCGCore WASM，并读取到核心版本 " + version[0] + "." + version[1] + "。下一步才是创建测试 Duel。";
+    log("Core version: " + version.join("."));
+    log("PASS: browser WASM initialization verified.");
+  } catch (error) {
+    const message = error && error.stack ? error.stack : String(error);
+    log("FAIL: " + message);
+    const failed = ["step2","step3","step4"].find(id => !$(id).classList.contains("ok"));
+    if (failed) setStep(failed,"fail",String(error.message || error));
+    $("summary").textContent = "未通过：请把完整诊断日志发给我，我会根据失败步骤修复。";
+  } finally {
+    $("run").disabled = false;
+  }
+});
