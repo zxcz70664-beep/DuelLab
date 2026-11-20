@@ -9,13 +9,15 @@ async function loadCardCatalog(){
     if(!response.ok)throw new Error("HTTP "+response.status);
     const payload=await response.json();
     cardCatalog=payload.cards||[];
-    count.textContent="已载入 "+cardCatalog.length.toLocaleString("zh-CN")+" 张卡牌 · 上游原始文本";
+    count.textContent="已载入 "+cardCatalog.length.toLocaleString("zh-CN")+" 张卡牌 · 优先显示官方简体中文";
     renderCardSearch("");
   }catch(error){
     count.textContent="卡牌数据载入失败";
     results.innerHTML='<p class="hint">数据库暂时不可用：'+esc(error.message)+'</p>';
   }
 }
+function cardDisplayName(c){return c.name_zh||c.name_zh_fallback||c.name||"未命名卡牌"}
+function cardDisplayDesc(c){return c.desc_zh||c.desc||"暂无效果文本"}
 function renderCardSearch(query){
   const results=$("libraryResults");
   if(!results)return;
@@ -25,8 +27,8 @@ function renderCardSearch(query){
   const zexalQuery=["异热同心","zexal","ゼアル"].includes(q);
   const found=cardCatalog.filter(c=>zexalQuery
     ? (c.archetypes||[]).includes("ZEXAL")
-    : (c.name||"").toLocaleLowerCase().includes(q)||(c.desc||"").toLocaleLowerCase().includes(q)).slice(0,120);
-  results.innerHTML=found.map(c=>'<article class="library-card"><div class="library-card-head"><b>'+esc(c.name)+'</b><small>ID '+c.id+'</small></div><p>'+esc((c.desc||"暂无原始效果文本").slice(0,260))+(c.desc&&c.desc.length>260?"…":"")+'</p><div class="library-card-meta"><span>'+esc(cardTypeLabel(c.type))+'</span><span>ATK '+c.atk+' / DEF '+c.def+'</span><span>资料已导入 · 脚本未验证</span><button data-add-catalog="'+c.id+'">加入当前卡组</button></div></article>').join("")||'<p class="hint">没有找到匹配卡牌。</p>';
+    : [c.name,c.name_zh,c.name_zh_fallback,c.desc,c.desc_zh].some(v=>(v||"").toLocaleLowerCase().includes(q))).slice(0,120);
+  results.innerHTML=found.map(c=>{const desc=cardDisplayDesc(c);return '<article class="library-card"><div class="library-card-head"><b>'+esc(cardDisplayName(c))+'</b><small>ID '+c.id+'</small></div><p>'+esc(desc.slice(0,260))+(desc.length>260?"…":"")+'</p><div class="library-card-meta"><span>'+esc(cardTypeLabel(c.type))+'</span><span>ATK '+c.atk+' / DEF '+c.def+'</span><span>'+(c.name_zh||c.desc_zh?"简中资料可用":"暂无官方简中译文")+' · 脚本未验证</span><button data-add-catalog="'+c.id+'">加入当前卡组</button></div></article>'}).join("")||'<p class="hint">没有找到匹配卡牌。</p>';
 }
 function cardTypeLabel(type){
   const t=Number(type)||0, labels=[];
@@ -46,9 +48,9 @@ $("libraryResults").addEventListener("click",e=>{
   const copies=deck.cards.filter(c=>String(c.id)===String(card.id)).length;
   if(copies>=3){toast("同名卡最多添加 3 张");return}
   const type=Number(card.type)||0;
-  const zone=(type&(0x40|0x2000|0x800000|0x1000000|0x4000000))?"extra":"main";
+  const zone=(type&(0x40|0x2000|0x800000|0x4000000))?"extra":"main";
   if(zone==="extra"&&deck.cards.filter(c=>c.zone==="extra").length>=15){toast("额外卡组最多 15 张");return}
-  deck.cards.push({id:card.id,name:card.name,zone,source:"BabelCDB"});
+  deck.cards.push({id:card.id,name:cardDisplayName(card),zone,source:"BabelCDB"});
   save();cards();list();toast("已加入卡组："+card.name);
 });
 loadCardCatalog();
@@ -73,13 +75,13 @@ const zexalRecipe={
 $("importZexalDeck").onclick=()=>{
  if(!cardCatalog.length)return toast("卡牌资料库尚未载入，请稍后再试");
  const make=(rows,zone)=>rows.flatMap(([name,n])=>{
-   const c=cardCatalog.find(x=>(x.name||"").toLocaleLowerCase()===name.toLocaleLowerCase());
-   return c?Array.from({length:n},()=>({id:c.id,name:c.name,zone,source:"Konami Neuron public deck recipe"})):[];
+   const c=cardCatalog.find(x=>(x.source_name||x.name||"").toLocaleLowerCase()===name.toLocaleLowerCase());
+   return c?Array.from({length:n},()=>({id:c.id,name:cardDisplayName(c),zone,source:"Konami Neuron public deck recipe"})):[];
  });
  const main=make(zexalRecipe.main,"main"),extra=make(zexalRecipe.extra,"extra");
  const expectedMain=zexalRecipe.main.reduce((n,x)=>n+x[1],0),expectedExtra=zexalRecipe.extra.reduce((n,x)=>n+x[1],0);
  if(main.length!==expectedMain||extra.length!==expectedExtra){
-   const missing=[...zexalRecipe.main,...zexalRecipe.extra].filter(([name])=>!cardCatalog.some(c=>(c.name||"").toLocaleLowerCase()===name.toLocaleLowerCase())).map(x=>x[0]);
+   const missing=[...zexalRecipe.main,...zexalRecipe.extra].filter(([name])=>!cardCatalog.some(c=>(c.source_name||c.name||"").toLocaleLowerCase()===name.toLocaleLowerCase())).map(x=>x[0]);
    return toast("数据库缺少 "+missing.length+" 种卡牌，未创建不完整卡组："+missing.slice(0,3).join("、"));
  }
  const d={id:crypto.randomUUID(),name:"异热同心 ZEXAL 参考构筑",cards:[...main,...extra]};
