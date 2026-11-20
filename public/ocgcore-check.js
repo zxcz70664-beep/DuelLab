@@ -24,17 +24,16 @@ $("run").addEventListener("click", async () => {
     log("Browser: " + navigator.userAgent);
     log("WebAssembly detected.");
 
-    setStep("step2","running","正在从 esm.sh 加载 JSR 0.1.6…");
-    const moduleUrl = "https://esm.sh/jsr/@n1xx1/ocgcore-wasm@0.1.6?bundle";
+    setStep("step2","running","正在加载 JSR 0.1.6 的底层 dist/index.js…");
+    const moduleUrl = "https://esm.sh/jsr/@n1xx1/ocgcore-wasm@0.1.6/dist/index.js?bundle";
     const coreModule = await import(moduleUrl);
     log("Module imported: " + moduleUrl);
     log("Exports: " + Object.keys(coreModule).join(", "));
-    // ocgcore-wasm 0.1.6 exports createCore as the default export.
     const createCore = coreModule.default;
     if (typeof createCore !== "function") {
-      throw new Error("模块已加载，但默认导出不是初始化函数。实际导出：" + Object.keys(coreModule).join(", "));
+      throw new Error("底层模块仍未暴露默认初始化函数。实际导出：" + Object.keys(coreModule).join(", "));
     }
-    setStep("step2","ok","模块加载成功（默认导出 createCore）");
+    setStep("step2","ok","模块加载成功（找到默认导出）");
 
     setStep("step3","running","正在初始化 WASM…");
     const core = await createCore({sync:true});
@@ -42,7 +41,7 @@ $("run").addEventListener("click", async () => {
       throw new Error("WASM 初始化未返回预期的核心接口。");
     }
     setStep("step3","ok","WASM 初始化成功");
-    log("default({sync:true}) completed.");
+    log("createCore({sync:true}) completed.");
 
     setStep("step4","running","正在读取版本…");
     const version = core.getVersion();
