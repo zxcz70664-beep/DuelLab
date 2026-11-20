@@ -14,3 +14,9 @@ jobs:
           node-version: 22
       - run: node --check public/app.js
       - run: npm test
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image and import card catalog
+        run: docker build --tag duellab:test .
