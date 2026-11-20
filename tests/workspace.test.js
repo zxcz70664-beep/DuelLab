@@ -41,3 +41,12 @@ test('mobile responsive breakpoints are defined', () => {
   assert.match(css, /@media\s*\(max-width:\s*800px\)/);
   assert.match(css, /@media\s*\(max-width:\s*600px\)/);
 });
+
+
+test('basic deck structure validation is implemented without claiming banlist validation', () => {
+  assert.match(js, /function validateDeck\(d\)/);
+  assert.match(js, /main\.length<40\|\|main\.length>60/);
+  assert.match(js, /extra\.length>15/);
+  assert.match(js, /n>3/);
+  assert.match(html, /禁限卡表与特殊构筑限制尚未检查/);
+});
