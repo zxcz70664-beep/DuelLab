@@ -45,9 +45,13 @@ test('mobile responsive breakpoints are defined', () => {
 
 test('basic deck structure validation is implemented without claiming banlist validation', () => {
   assert.match(js, /function validateDeck\(d\)/);
-  assert.match(js, /main\.length<40\|\|main\.length>60/);
-  assert.match(js, /extra\.length>15/);
-  assert.match(js, /n>3/);
+  assert.match(html, /src="\/deck-validation\.js"/);
+  assert.match(js, /window\.DuelLabDeckValidation\.validateDeck\(d\)/);
+  const validation = fs.readFileSync(path.join(root, 'public/deck-validation.js'), 'utf8');
+  assert.match(validation, /main\.length\s*<\s*40/);
+  assert.match(validation, /main\.length\s*>\s*60/);
+  assert.match(validation, /extra\.length\s*>\s*15/);
+  assert.match(validation, /count\s*>\s*3/);
   assert.match(html, /禁限卡表与特殊构筑限制尚未检查/);
 });
 
