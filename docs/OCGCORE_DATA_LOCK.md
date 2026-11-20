@@ -72,3 +72,24 @@ Project Ignis 的卡牌定义至少由以下部分组成：
 ## 许可证与分发阻断项
 
 CardScripts 仓库标注 AGPL-3.0-or-later。核心、数据库、WASM wrapper、卡图和翻译数据需分别核对许可证；wrapper 的 MIT 标注不能推导整个组合均为 MIT。任何公开部署或分发前，必须完成组件级许可证审查。
+
+
+## 2026-11-20：WASM 0.1.6 的核心源码定位
+
+已从 n1xx1/ocgcore-wasm 的 Git 历史确认，0.1.6 发布提交为：
+
+- wrapper release commit：`21c26abd352f1323b578c0b8f49bf8b3d2ceb6a1`（提交信息 `0.1.6`）
+- 该提交的 `cpp/ygo` Git submodule 固定到 `edo9300/ygopro-core` commit：`baa3881d0bae48e9994f915f5c931be53c1ba8ef`
+- 核心 commit 日期：2026-10-16
+- 核心 commit 摘要：召唤/盖放可行性检查逻辑调整
+- wrapper 0.1.6 的 `.gitmodules` 指向 `https://github.com/edo9300/ygopro-core.git`；真正可复现的版本应以该发布提交中的 submodule SHA 为准，而不是当前 `master`。
+
+该发现只固定了 wrapper 与核心源码的对应关系，**尚未证明现有 BabelCDB 与 CardScripts 快照完全兼容**。此前记录的 CardScripts SHA `c6ae1aa29f10f678496064a5e8525ade40286d03` 是 2026-11-19 的较新提交，不能仅凭时间较新就认定它与 2026-10-16 的核心完全匹配。必须继续核对核心脚本 API 变更、官方发布说明和最小效果卡脚本实测。
+
+### 当前锁定决策
+
+- WASM wrapper：`@n1xx1/ocgcore-wasm@0.1.6`
+- EDOPro core：`edo9300/ygopro-core@baa3881d0bae48e9994f915f5c931be53c1ba8ef`
+- BabelCDB：暂不锁定，原候选 SHA 需验证
+- CardScripts：暂不锁定，原候选 SHA 需验证
+- 禁止将当前 CardScripts/BabelCDB HEAD 直接打包进生产构建，直到完成快照兼容与许可证审查
